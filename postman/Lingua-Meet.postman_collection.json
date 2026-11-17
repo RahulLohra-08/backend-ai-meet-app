@@ -1,0 +1,991 @@
+{
+  "info": {
+    "name": "Lingua Meet API v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "guestToken",
+      "value": ""
+    },
+    {
+      "key": "meetingId",
+      "value": ""
+    },
+    {
+      "key": "meetingCode",
+      "value": ""
+    },
+    {
+      "key": "transcriptId",
+      "value": ""
+    },
+    {
+      "key": "actionItemId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1 Auth",
+      "item": [
+        {
+          "name": "Register host (Asha)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.environment.set(\"accessToken\", j.accessToken);",
+                  "pm.test(\"status ok\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha\",\n  \"email\": \"asha@example.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login host",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.environment.set(\"accessToken\", j.accessToken);",
+                  "pm.test(\"status ok\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"asha@example.com\",\n  \"password\": \"Password123!\",\n  \"remember\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh (cookie jar)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.environment.set(\"accessToken\", j.accessToken);",
+                  "pm.test(\"status ok\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register guest (Rahul) - run, then copy token to guestToken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"guestToken\", pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rahul\",\n  \"email\": \"rahul@example.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 Meetings",
+      "item": [
+        {
+          "name": "Create meeting (Hindi -> English)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const m = pm.response.json().meeting; pm.environment.set(\"meetingId\", m._id); pm.environment.set(\"meetingCode\", m.code);",
+                  "pm.test(\"201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hindi English Sync\",\n  \"sourceLanguage\": \"hi\",\n  \"targetLanguage\": \"en\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Host joins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingCode}}/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingCode}}",
+                "join"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "List my meetings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get meeting",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Participants + presence",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/participants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "participants"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 Guest (use Authorization: Bearer {{guestToken}})",
+      "item": [
+        {
+          "name": "Guest joins by code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{guestToken}}"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"captionLanguage\": \"en\" }"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingCode}}/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingCode}}",
+                "join"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 Transcription & translation",
+      "item": [
+        {
+          "name": "Store a Hindi segment (browser engine)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const t = pm.response.json().transcript; pm.environment.set(\"transcriptId\", t.id);",
+                  "pm.test(\"stored\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/transcripts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "transcripts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"\u0939\u092e\u0947\u0902 \u0936\u0941\u0915\u094d\u0930\u0935\u093e\u0930 \u0924\u0915 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0924\u0948\u092f\u093e\u0930 \u0915\u0930\u0928\u0940 \u0939\u0948\",\n  \"sourceLanguage\": \"hi\",\n  \"clientSegmentId\": \"postman-segment-0001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List transcripts with English translations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/transcripts?lang=en",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "transcripts"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "en"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Translate segment to French (needs a translation provider)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/translations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "translations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transcriptId\": \"{{transcriptId}}\",\n  \"targetLanguage\": \"fr\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List stored French translations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/translations?lang=fr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "translations"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "fr"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 End meeting, AI notes, action items",
+      "item": [
+        {
+          "name": "End meeting (host)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/end",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "end"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate / regenerate notes (202)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/summarize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "summarize"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Get summary (poll until status=completed)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "summary"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List action items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/action-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "action-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create action item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"actionItemId\", pm.response.json().actionItem.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/action-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "action-items"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Send the report\",\n  \"priority\": \"high\",\n  \"dueDate\": \"2026-12-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update action item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/action-items/{{actionItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "action-items",
+                "{{actionItemId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"done\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/action-items?assignedTo=me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "action-items"
+              ],
+              "query": [
+                {
+                  "key": "assignedTo",
+                  "value": "me"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete action item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/action-items/{{actionItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "action-items",
+                "{{actionItemId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 System",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Capabilities",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/capabilities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "capabilities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Languages",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/languages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "languages"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 Diagnostics & retries",
+      "item": [
+        {
+          "name": "Test providers (what OpenAI / STT really answer)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/diagnostics/providers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diagnostics",
+                "providers"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('report',()=>pm.expect(pm.response.json()).to.have.property('llm'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retry one translation now (no re-transcription)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/translations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "translations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transcriptId\": \"{{transcriptId}}\",\n  \"targetLanguage\": \"en\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Caption A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/transcripts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "transcripts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello everyone\",\n  \"sourceLanguage\": \"en\",\n  \"clientSegmentId\": \"postman-dup-0001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Same caption again, different id -> duplicate:true",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings/{{meetingId}}/transcripts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings",
+                "{{meetingId}}",
+                "transcripts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"hello  everyone\",\n  \"sourceLanguage\": \"en\",\n  \"clientSegmentId\": \"postman-dup-0002\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('suppressed',()=>pm.expect(pm.response.json().duplicate).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create meeting (run 3x in a row: all must be 201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meetings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meetings"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Parallel check\",\n  \"sourceLanguage\": \"hi\",\n  \"targetLanguage\": \"en\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201',()=>pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
