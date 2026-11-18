@@ -20,6 +20,7 @@ const DUMMY_HASH = bcrypt.hashSync('timing-equalizer', 10); // compared when the
 router.post('/register', authLimiter, validate(z.object({ name: z.string().trim().min(2).max(100), email, password, remember: z.boolean().optional() })),
   asyncHandler(async (req, res) => {
     const b = req.valid.body;
+    console.log("Body: ", b);
     if (await User.exists({ email: b.email })) throw conflict('Email is already registered.', 'EMAIL_TAKEN');
     const user = await User.create({ name: b.name, email: b.email, passwordHash: await bcrypt.hash(b.password, 12) });
     res.status(201).json(await startSession(req, res, user, b.remember ?? true));
@@ -28,6 +29,7 @@ router.post('/register', authLimiter, validate(z.object({ name: z.string().trim(
 router.post('/login', authLimiter, validate(z.object({ email, password: z.string().min(1).max(128), remember: z.boolean().optional() })),
   asyncHandler(async (req, res) => {
     const b = req.valid.body;
+    console.log("Body: ", b);
     const user = await User.findOne({ email: b.email }).select('+passwordHash');
     const ok = await bcrypt.compare(b.password, user?.passwordHash || DUMMY_HASH);
     if (!user || !ok) throw unauthorized('Email or password is incorrect.', 'INVALID_CREDENTIALS');
